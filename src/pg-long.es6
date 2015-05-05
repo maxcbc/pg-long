@@ -1,4 +1,4 @@
-// Ported from original source at 
+// Ported from original source at
 // http://docs.closure-library.googlecode.com/git/local_closure_goog_math_long.js.source.html
 
 // Copyright 2009 The Closure Library Authors. All Rights Reserved.
@@ -56,16 +56,7 @@ let IntCache = {};
 
 class Long {
   constructor (low, high) {
-    /**
-     * @type {number}
-     * @private
-     */
     this.low_ = low | 0;  // force into 32 signed bits.
-
-    /**
-     * @type {number}
-     * @private
-     */
     this.high_ = high | 0;  // force into 32 signed bits.
   }
 
@@ -77,7 +68,7 @@ class Long {
   static fromInt (value) {
     let cachedObj,
         obj;
-    if (-128 <= value && value < 128) {
+    if (value >= -128 && value < 128) {
       cachedObj = IntCache[value];
       if (cachedObj) {
         return cachedObj;
@@ -85,7 +76,7 @@ class Long {
     }
 
     obj = new Long(value | 0, value < 0 ? -1 : 0);
-    if (-128 <= value && value < 128) {
+    if (value >= -128 && value < 128) {
       IntCache[value] = obj;
     }
     return obj;
@@ -106,9 +97,8 @@ class Long {
       return Long.MAX_VALUE;
     } else if (value < 0) {
       return Long.fromNumber(-value).negate();
-    } else {
-      return new Long((value % Long.TWO_PWR_32_DBL_) | 0, (value / Long.TWO_PWR_32_DBL_) | 0);
     }
+    return new Long((value % Long.TWO_PWR_32_DBL_) | 0, (value / Long.TWO_PWR_32_DBL_) | 0);
   }
 
   /**
@@ -171,9 +161,6 @@ class Long {
     return result;
   }
 
-  // NOTE: the compiler should inline these constant values below and then remove
-  // these variables, so there should be no runtime penalty for these.
-
   /**
    * Number used repeated below in calculations.  This must appear before the
    * first call to any from* function below.
@@ -189,7 +176,7 @@ class Long {
    * @private
    */
   static get TWO_PWR_24_DBL_ () {
-    return 1 << 24; 
+    return 1 << 24;
   }
 
   /**
@@ -205,7 +192,7 @@ class Long {
    * @private
    */
   static get TWO_PWR_31_DBL_ () {
-    return Long.TWO_PWR_32_DBL_ / 2; 
+    return Long.TWO_PWR_32_DBL_ / 2;
   }
 
   /**
@@ -250,7 +237,7 @@ class Long {
   /** @type {!Long} */
   static get MAX_VALUE () {
     return Long.fromBits(0xFFFFFFFF | 0, 0x7FFFFFFF | 0);
-  }      
+  }
 
   /** @type {!Long} */
   static get MIN_VALUE () {
@@ -302,15 +289,12 @@ class Long {
 
     if (this.isNegative()) {
       if (this.equals(Long.MIN_VALUE)) {
-        // We need to change the Long value before it can be negated, so we remove
-        // the bottom-most digit in this base and then recurse to do the rest.
         radixLong = Long.fromNumber(radix);
         div = this.div(radixLong);
         that = div.multiply(radixLong).subtract(this);
         return div.toString(radix) + that.toInt().toString(radix);
-      } else {
-        return '-' + this.negate().toString(radix);
       }
+      return '-' + this.negate().toString(radix);
     }
 
     // Do several (6) digits each time through the loop, so as to
@@ -327,12 +311,11 @@ class Long {
       that = thatDiv;
       if (that.isZero()) {
         return digits + result;
-      } else {
-        while (digits.length < 6) {
-          digits = '0' + digits;
-        }
-        result = '' + digits + result;
       }
+      while (digits.length < 6) {
+        digits = '0' + digits;
+      }
+      result = '' + digits + result;
     }
   }
 
@@ -360,19 +343,17 @@ class Long {
     if (this.isNegative()) {
       if (this.equals(Long.MIN_VALUE)) {
         return 64;
-      } else {
-        return this.negate().getNumBitsAbs();
       }
-    } else {
-      let bit,
-          val = this.high_ !== 0 ? this.high_ : this.low_;
-      for (bit = 31; bit > 0; bit--) {
-        if ((val & (1 << bit)) !== 0) {
-          break;
-        }
-      }
-      return this.high_ !== 0 ? bit + 33 : bit + 1;
+      return this.negate().getNumBitsAbs();
     }
+    let bit,
+        val = this.high_ !== 0 ? this.high_ : this.low_;
+    for (bit = 31; bit > 0; bit--) {
+      if ((val & (1 << bit)) !== 0) {
+        break;
+      }
+    }
+    return this.high_ !== 0 ? bit + 33 : bit + 1;
   }
 
   /** @return {boolean} Whether this value is zero. */
@@ -461,18 +442,16 @@ class Long {
     // at this point, the signs are the same, so subtraction will not overflow
     if (this.subtract(other).isNegative()) {
       return -1;
-    } else {
-      return 1;
     }
+    return 1;
   }
 
   /** @return {!Long} The negation of this value. */
   negate () {
     if (this.equals(Long.MIN_VALUE)) {
       return Long.MIN_VALUE;
-    } else {
-      return this.not().add(Long.ONE);
     }
+    return this.not().add(Long.ONE);
   }
 
   /**
@@ -481,7 +460,6 @@ class Long {
    * @return {!Long} The sum of this and the given Long.
    */
   add (other) {
-    // Divide each number into 4 chunks of 16 bits, and then sum the chunks.
     let a48,
         a32,
         a16,
@@ -553,9 +531,8 @@ class Long {
     if (this.isNegative()) {
       if (other.isNegative()) {
         return this.negate().multiply(other.negate());
-      } else {
-        return this.negate().multiply(other).negate();
       }
+      return this.negate().multiply(other).negate();
     } else if (other.isNegative()) {
       return this.multiply(other.negate()).negate();
     }
@@ -645,18 +622,15 @@ class Long {
         return Long.MIN_VALUE;  // recall that -MIN_VALUE === MIN_VALUE
       } else if (other.equals(Long.MIN_VALUE)) {
         return Long.ONE;
-      } else {
-        // At this point, we have |other| >= 2, so |this/other| < |MIN_VALUE|.
-        halfThis = this.shiftRight(1);
-        approx = halfThis.div(other).shiftLeft(1);
-        if (approx.equals(Long.ZERO)) {
-          return other.isNegative() ? Long.ONE : Long.NEG_ONE;
-        } else {
-          that = this.subtract(other.multiply(approx));
-          result = approx.add(that.div(other));
-          return result;
-        }
       }
+      halfThis = this.shiftRight(1);
+      approx = halfThis.div(other).shiftLeft(1);
+      if (approx.equals(Long.ZERO)) {
+        return other.isNegative() ? Long.ONE : Long.NEG_ONE;
+      }
+      that = this.subtract(other.multiply(approx));
+      result = approx.add(that.div(other));
+      return result;
     } else if (other.equals(Long.MIN_VALUE)) {
       return Long.ZERO;
     }
@@ -664,9 +638,8 @@ class Long {
     if (this.isNegative()) {
       if (other.isNegative()) {
         return this.negate().div(other.negate());
-      } else {
-        return this.negate().div(other).negate();
       }
+      return this.negate().div(other).negate();
     } else if (other.isNegative()) {
       return this.div(other.negate()).negate();
     }
@@ -679,8 +652,6 @@ class Long {
     res = Long.ZERO;
     that = this;
     while (that.greaterThanOrEqual(other)) {
-      // Approximate the result of division. This may be a little greater or
-      // smaller than the actual value.
       approx = Math.max(1, Math.floor(that.toNumber() / other.toNumber()));
 
       // We will tweak the approximate result by changing it in the 48-th digit or
@@ -756,23 +727,22 @@ class Long {
    * @param {number} numBits The number of bits by which to shift.
    * @return {!Long} This shifted to the left by the given amount.
    */
-  shiftLeft (numBits) {
+  shiftLeft (nBits) {
     let high,
-        low;
+        low,
+        numBits = nBits;
     numBits &= 63;
     if (numBits === 0) {
       return this;
-    } else {
-      low = this.low_;
-      if (numBits < 32) {
-        high = this.high_;
-        return Long.fromBits(
-            low << numBits,
-            (high << numBits) | (low >>> (32 - numBits)));
-      } else {
-        return Long.fromBits(0, low << (numBits - 32));
-      }
     }
+    low = this.low_;
+    if (numBits < 32) {
+      high = this.high_;
+      return Long.fromBits(
+          low << numBits,
+          (high << numBits) | (low >>> (32 - numBits)));
+    }
+    return Long.fromBits(0, low << (numBits - 32));
   }
 
   /**
@@ -780,25 +750,24 @@ class Long {
    * @param {number} numBits The number of bits by which to shift.
    * @return {!Long} This shifted to the right by the given amount.
    */
-  shiftRight (numBits) {
+  shiftRight (nBits) {
     let high,
-        low;
+        low,
+        numBits = nBits;
     numBits &= 63;
     if (numBits === 0) {
       return this;
-    } else {
-      high = this.high_;
-      if (numBits < 32) {
-        low = this.low_;
-        return Long.fromBits(
-            (low >>> numBits) | (high << (32 - numBits)),
-            high >> numBits);
-      } else {
-        return Long.fromBits(
-            high >> (numBits - 32),
-            high >= 0 ? 0 : -1);
-      }
     }
+    high = this.high_;
+    if (numBits < 32) {
+      low = this.low_;
+      return Long.fromBits(
+          (low >>> numBits) | (high << (32 - numBits)),
+          high >> numBits);
+    }
+    return Long.fromBits(
+        high >> (numBits - 32),
+        high >= 0 ? 0 : -1);
   }
 
   /**
@@ -808,29 +777,25 @@ class Long {
    * @return {!Long} This shifted to the right by the given amount, with
    *     zeros placed into the new leading bits.
    */
-  shiftRightUnsigned (numBits) {
+  shiftRightUnsigned (nBits) {
     let high,
-        low;
+        low,
+        numBits = nBits;
     numBits &= 63;
     if (numBits === 0) {
       return this;
-    } else {
-      high = this.high_;
-      if (numBits < 32) {
-        low = this.low_;
-        return Long.fromBits(
-            (low >>> numBits) | (high << (32 - numBits)),
-            high >>> numBits);
-      } else if (numBits === 32) {
-        return Long.fromBits(high, 0);
-      } else {
-        return Long.fromBits(high >>> (numBits - 32), 0);
-      }
     }
+    high = this.high_;
+    if (numBits < 32) {
+      low = this.low_;
+      return Long.fromBits(
+          (low >>> numBits) | (high << (32 - numBits)),
+          high >>> numBits);
+    } else if (numBits === 32) {
+      return Long.fromBits(high, 0);
+    }
+    return Long.fromBits(high >>> (numBits - 32), 0);
   }
 }
-
-// NOTE: Common constant values ZERO, ONE, NEG_ONE, etc. are defined below the
-// from* methods on which they depend.
 
 export default Long;
