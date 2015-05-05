@@ -7,8 +7,8 @@ import TEST_DIV_BITS from '../helper/test-div-bits';
 import TEST_STRINGS from '../helper/test-strings';
 
 // Interprets the given numbers as the bits of a 32-bit int.  In particular,
-// this takes care of the 32-bit being interpretted as the sign.
-function toInt32s(arr) {
+// this takes care of the 32-bit being interpreted as the sign.
+function toInt32s (arr) {
   for (let i = 0; i < arr.length; ++i) {
     arr[i] = arr[i] & 0xFFFFFFFF;
   }
@@ -19,156 +19,6 @@ toInt32s(TEST_ADD_BITS);
 toInt32s(TEST_SUB_BITS);
 toInt32s(TEST_MUL_BITS);
 toInt32s(TEST_DIV_BITS);
-
-describe('Long', () => {
-  let methods;
-  
-  methods = ['fromInt', 'fromNumber'];
-
-  methods.forEach((method) => {
-    it('should define method ' + method, () => {
-      expect(Long[method]).toBeDefined();
-    });
-  });
-
-  it('should to/from bits', () => {
-    for (let i = 0; i < TEST_BITS.length; i += 2) {
-      let val = Long.fromBits(TEST_BITS[i + 1], TEST_BITS[i]);
-      expect(TEST_BITS[i]).toEqual(val.getHighBits());
-      expect(TEST_BITS[i + 1]).toEqual(val.getLowBits());
-    }
-  });
-
-  it('should to/from int', () => {
-    for (let i = 0; i < TEST_BITS.length; i += 1) {
-      let val = Long.fromInt(TEST_BITS[i]);
-      expect(TEST_BITS[i]).toEqual(val.toInt());
-    }
-  });
-
-  it('should to/from number', () => {
-    for (let i = 0; i < TEST_BITS.length; i += 2) {
-      let num = TEST_BITS[i] * Math.pow(2, 32) +
-          TEST_BITS[i + 1] >= 0 ? TEST_BITS[i + 1] : Math.pow(2, 32) + TEST_BITS[i + 1];
-      let val = Long.fromNumber(num);
-      expect(num).toEqual(val.toNumber());
-    }
-  });
-
-  it('should handle zero', () => {
-    for (let i = 0; i < TEST_BITS.length; i += 2) {
-      let val = Long.fromBits(TEST_BITS[i + 1], TEST_BITS[i]);
-      expect(TEST_BITS[i] === 0 && TEST_BITS[i + 1] === 0).toEqual(val.isZero());
-    }
-  });  
-
-  it('should handle negative', () => {
-    for (let i = 0; i < TEST_BITS.length; i += 2) {
-      let val = Long.fromBits(TEST_BITS[i + 1], TEST_BITS[i]);
-      expect((TEST_BITS[i] >> 31) !== 0).toEqual(val.isNegative());
-    }
-  });  
-
-  it('should handle odd', () => {
-    for (let i = 0; i < TEST_BITS.length; i += 2) {
-      let val = Long.fromBits(TEST_BITS[i + 1], TEST_BITS[i]);
-      expect((TEST_BITS[i + 1] & 1) !== 0).toEqual(val.isOdd());
-    }
-  });  
-
-  it('should handle odd', () => {
-    for (let i = 0; i < TEST_BITS.length; i += 2) {
-      let val = Long.fromBits(TEST_BITS[i + 1], TEST_BITS[i]);
-      expect((TEST_BITS[i + 1] & 1) !== 0).toEqual(val.isOdd());
-    }
-  });  
-
-  it('should handle comparisons', () => {
-    for (let i = 0; i < TEST_BITS.length; i += 2) {
-      createTestComparisons(i).call();
-    }
-  });  
-
-  it('should handle bit operations', () => {
-    for (let i = 0; i < TEST_BITS.length; i += 2) {
-      createTestBitOperations(i).call();
-    }
-  });  
-
-  it('should handle negation', () => {
-    for (let i = 0; i < TEST_BITS.length; i += 2) {
-      let vi = Long.fromBits(TEST_BITS[i + 1], TEST_BITS[i]);
-      if (TEST_BITS[i + 1] === 0) {
-        expect((~TEST_BITS[i] + 1)|0).toEqual(vi.negate().getHighBits());
-        expect(0).toEqual(vi.negate().getLowBits());
-      } else {
-        expect(~TEST_BITS[i]).toEqual(vi.negate().getHighBits());
-        expect((~TEST_BITS[i + 1] + 1)|0).toEqual(vi.negate().getLowBits());
-      }
-    }
-  });  
-
-  it('should handle add', () => {
-    let count = 0;
-    for (let i = 0; i < TEST_BITS.length; i += 2) {
-      let vi = Long.fromBits(TEST_BITS[i + 1], TEST_BITS[i]);
-      for (let j = 0; j < i; j += 2) {
-        let vj = Long.fromBits(TEST_BITS[j + 1], TEST_BITS[j]);
-        let result = vi.add(vj);
-        expect(TEST_ADD_BITS[count++]).toEqual(result.getHighBits());
-        expect(TEST_ADD_BITS[count++]).toEqual(result.getLowBits());
-      }
-    }
-  });  
-
-  it('should handle subtract', () => {
-    let count = 0;
-    for (let i = 0; i < TEST_BITS.length; i += 2) {
-      let vi = Long.fromBits(TEST_BITS[i + 1], TEST_BITS[i]);
-      for (let j = 0; j < TEST_BITS.length; j += 2) {
-        let vj = Long.fromBits(TEST_BITS[j + 1], TEST_BITS[j]);
-        let result = vi.subtract(vj);
-        expect(TEST_SUB_BITS[count++]).toEqual(result.getHighBits());
-        expect(TEST_SUB_BITS[count++]).toEqual(result.getLowBits());
-      }
-    }
-  });  
-
-  it('should handle multiply', () => {
-    let count = 0;
-    for (let i = 0; i < TEST_BITS.length; i += 2) {
-      let vi = Long.fromBits(TEST_BITS[i + 1], TEST_BITS[i]);
-      for (let j = 0; j < i; j += 2) {
-        let vj = Long.fromBits(TEST_BITS[j + 1], TEST_BITS[j]);
-        let result = vi.multiply(vj);
-        expect(TEST_MUL_BITS[count++]).toEqual(result.getHighBits());
-        expect(TEST_MUL_BITS[count++]).toEqual(result.getLowBits());
-      }
-    }
-  });  
-
-  it('should handle divide', () => {
-    let countPerDivModCall = 0;
-    for (let j = 0; j < TEST_BITS.length; j += 2) {
-      let vj = Long.fromBits(TEST_BITS[j + 1], TEST_BITS[j]);
-      if (!vj.isZero()) {
-        countPerDivModCall += 2;
-      }
-    }
-
-    let countDivMod = 0;
-    for (let i = 0; i < TEST_BITS.length; i += 2) {
-      createTestDivMod(i, countDivMod).call();
-      countDivMod += countPerDivModCall;
-    }
-  });  
-
-  it('should to/from string', () => {
-    for (let i = 0; i < TEST_BITS.length; i += 2) {
-      createTestToFromString(i).call();
-    }
-  });  
-});
 
 function createTestComparisons (i) {
   return () => {
@@ -185,7 +35,7 @@ function createTestComparisons (i) {
   };
 }
 
-function createTestBitOperations(i) {
+function createTestBitOperations (i) {
   return () => {
     let vi = Long.fromBits(TEST_BITS[i + 1], TEST_BITS[i]);
     expect(~TEST_BITS[i]).toEqual(vi.not().getHighBits());
@@ -227,7 +77,7 @@ function createTestBitOperations(i) {
         expect(TEST_BITS[i] >> (len - 32)).toEqual(vi.shiftRight(len).getLowBits());
 
         expect(0).toEqual(vi.shiftRightUnsigned(len).getHighBits());
-        if (len == 32) {
+        if (len === 32) {
           expect(TEST_BITS[i]).toEqual(vi.shiftRightUnsigned(len).getLowBits());
         } else {
           expect(TEST_BITS[i] >>> (len - 32)).toEqual(vi.shiftRightUnsigned(len).getLowBits());
@@ -244,28 +94,31 @@ function createTestBitOperations(i) {
   };
 }
 
-function createTestDivMod(i, count) {
+function createTestDivMod (i, c) {
+  let count = c;
   return () => {
     let vi = Long.fromBits(TEST_BITS[i + 1], TEST_BITS[i]);
     for (let j = 0; j < TEST_BITS.length; j += 2) {
       let vj = Long.fromBits(TEST_BITS[j + 1], TEST_BITS[j]);
       if (!vj.isZero()) {
-        let divResult = vi.div(vj);
+        let divResult = vi.div(vj),
+            modResult,
+            combinedResult;
         expect(TEST_DIV_BITS[count++]).toEqual(divResult.getHighBits());
         expect(TEST_DIV_BITS[count++]).toEqual(divResult.getLowBits());
 
-        let modResult = vi.modulo(vj);
-        let combinedResult = divResult.multiply(vj).add(modResult);
+        modResult = vi.modulo(vj);
+        combinedResult = divResult.multiply(vj).add(modResult);
         expect(vi.equals(combinedResult)).toBeTruthy();
       }
     }
   };
 }
 
-function createTestToFromString(i) {
+function createTestToFromString (i) {
   return () => {
-    let vi = Long.fromBits(TEST_BITS[i + 1], TEST_BITS[i]);
-    let str = vi.toString(10);
+    let vi = Long.fromBits(TEST_BITS[i + 1], TEST_BITS[i]),
+        str = vi.toString(10);
     expect(TEST_STRINGS[i / 2]).toEqual(str);
     expect(TEST_BITS[i]).toEqual(Long.fromString(str, 10).getHighBits());
     expect(TEST_BITS[i + 1]).toEqual(Long.fromString(str, 10).getLowBits());
@@ -277,3 +130,152 @@ function createTestToFromString(i) {
     }
   };
 }
+
+describe('Long', () => {
+  let methods = ['fromInt', 'fromNumber'];
+
+  methods.forEach((method) => {
+    it('should define method ' + method, () => {
+      expect(Long[method]).toBeDefined();
+    });
+  });
+
+  it('should to/from bits', () => {
+    for (let i = 0; i < TEST_BITS.length; i += 2) {
+      let val = Long.fromBits(TEST_BITS[i + 1], TEST_BITS[i]);
+      expect(TEST_BITS[i]).toEqual(val.getHighBits());
+      expect(TEST_BITS[i + 1]).toEqual(val.getLowBits());
+    }
+  });
+
+  it('should to/from int', () => {
+    for (let i = 0; i < TEST_BITS.length; i += 1) {
+      let val = Long.fromInt(TEST_BITS[i]);
+      expect(TEST_BITS[i]).toEqual(val.toInt());
+    }
+  });
+
+  it('should to/from number', () => {
+    for (let i = 0; i < TEST_BITS.length; i += 2) {
+      let num = TEST_BITS[i] * Math.pow(2, 32) +
+          TEST_BITS[i + 1] >= 0 ? TEST_BITS[i + 1] : Math.pow(2, 32) + TEST_BITS[i + 1],
+          val = Long.fromNumber(num);
+      expect(num).toEqual(val.toNumber());
+    }
+  });
+
+  it('should handle zero', () => {
+    for (let i = 0; i < TEST_BITS.length; i += 2) {
+      let val = Long.fromBits(TEST_BITS[i + 1], TEST_BITS[i]);
+      expect(TEST_BITS[i] === 0 && TEST_BITS[i + 1] === 0).toEqual(val.isZero());
+    }
+  });
+
+  it('should handle negative', () => {
+    for (let i = 0; i < TEST_BITS.length; i += 2) {
+      let val = Long.fromBits(TEST_BITS[i + 1], TEST_BITS[i]);
+      expect((TEST_BITS[i] >> 31) !== 0).toEqual(val.isNegative());
+    }
+  });
+
+  it('should handle odd', () => {
+    for (let i = 0; i < TEST_BITS.length; i += 2) {
+      let val = Long.fromBits(TEST_BITS[i + 1], TEST_BITS[i]);
+      expect((TEST_BITS[i + 1] & 1) !== 0).toEqual(val.isOdd());
+    }
+  });
+
+  it('should handle odd', () => {
+    for (let i = 0; i < TEST_BITS.length; i += 2) {
+      let val = Long.fromBits(TEST_BITS[i + 1], TEST_BITS[i]);
+      expect((TEST_BITS[i + 1] & 1) !== 0).toEqual(val.isOdd());
+    }
+  });
+
+  it('should handle comparisons', () => {
+    for (let i = 0; i < TEST_BITS.length; i += 2) {
+      createTestComparisons(i).call();
+    }
+  });
+
+  it('should handle bit operations', () => {
+    for (let i = 0; i < TEST_BITS.length; i += 2) {
+      createTestBitOperations(i).call();
+    }
+  });
+
+  it('should handle negation', () => {
+    for (let i = 0; i < TEST_BITS.length; i += 2) {
+      let vi = Long.fromBits(TEST_BITS[i + 1], TEST_BITS[i]);
+      if (TEST_BITS[i + 1] === 0) {
+        expect((~TEST_BITS[i] + 1)|0).toEqual(vi.negate().getHighBits());
+        expect(0).toEqual(vi.negate().getLowBits());
+      } else {
+        expect(~TEST_BITS[i]).toEqual(vi.negate().getHighBits());
+        expect((~TEST_BITS[i + 1] + 1)|0).toEqual(vi.negate().getLowBits());
+      }
+    }
+  });
+
+  it('should handle add', () => {
+    let count = 0;
+    for (let i = 0; i < TEST_BITS.length; i += 2) {
+      let vi = Long.fromBits(TEST_BITS[i + 1], TEST_BITS[i]);
+      for (let j = 0; j < i; j += 2) {
+        let vj = Long.fromBits(TEST_BITS[j + 1], TEST_BITS[j]),
+            result = vi.add(vj);
+        expect(TEST_ADD_BITS[count++]).toEqual(result.getHighBits());
+        expect(TEST_ADD_BITS[count++]).toEqual(result.getLowBits());
+      }
+    }
+  });
+
+  it('should handle subtract', () => {
+    let count = 0;
+    for (let i = 0; i < TEST_BITS.length; i += 2) {
+      let vi = Long.fromBits(TEST_BITS[i + 1], TEST_BITS[i]);
+      for (let j = 0; j < TEST_BITS.length; j += 2) {
+        let vj = Long.fromBits(TEST_BITS[j + 1], TEST_BITS[j]),
+            result = vi.subtract(vj);
+        expect(TEST_SUB_BITS[count++]).toEqual(result.getHighBits());
+        expect(TEST_SUB_BITS[count++]).toEqual(result.getLowBits());
+      }
+    }
+  });
+
+  it('should handle multiply', () => {
+    let count = 0;
+    for (let i = 0; i < TEST_BITS.length; i += 2) {
+      let vi = Long.fromBits(TEST_BITS[i + 1], TEST_BITS[i]);
+      for (let j = 0; j < i; j += 2) {
+        let vj = Long.fromBits(TEST_BITS[j + 1], TEST_BITS[j]),
+            result = vi.multiply(vj);
+        expect(TEST_MUL_BITS[count++]).toEqual(result.getHighBits());
+        expect(TEST_MUL_BITS[count++]).toEqual(result.getLowBits());
+      }
+    }
+  });
+
+  it('should handle divide', () => {
+    let countPerDivModCall = 0,
+        countDivMod;
+    for (let j = 0; j < TEST_BITS.length; j += 2) {
+      let vj = Long.fromBits(TEST_BITS[j + 1], TEST_BITS[j]);
+      if (!vj.isZero()) {
+        countPerDivModCall += 2;
+      }
+    }
+
+    countDivMod = 0;
+    for (let i = 0; i < TEST_BITS.length; i += 2) {
+      createTestDivMod(i, countDivMod).call();
+      countDivMod += countPerDivModCall;
+    }
+  });
+
+  it('should to/from string', () => {
+    for (let i = 0; i < TEST_BITS.length; i += 2) {
+      createTestToFromString(i).call();
+    }
+  });
+});
