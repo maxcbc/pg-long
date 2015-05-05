@@ -1,0 +1,25 @@
+{
+  "name": "pg-long",
+  "description": "Port of Google's Closure Long",
+  "version": "0.8.0",
+  "main": "lib/pg-long.js",
+  "main-es6": "src/pg-long.es6",
+  "scripts": {
+    "test": "gulp test",
+    "build": "gulp build",
+    "postinstall": "babel src/ --out-dir lib/"
+  },
+  "author": {
+    "name": "David Haines",
+    "email": "david@polyglotted.io"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:polyglotted/pg-long.git"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "gulp": "^3.8.11",
+    "gulp-fibre-tasks": "git+ssh://git@github.com:polyglotted/gulp-fibre-tasks.git"
+  }
+}
