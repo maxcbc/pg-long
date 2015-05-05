@@ -199,5 +199,5 @@ let TEST_MUL_BITS = [
       0xffff0000, 0x00000000, 0x7ff00000, 0x00000001, 0xfff00000, 0x00000000,
       0x29cb1d24, 0x48892a0b
     ];
-                  
+
 export default TEST_MUL_BITS;

@@ -1,6 +1,6 @@
 {
   "name": "pg-long",
-  "description": "Port of Google's Closure Long",
+  "description": "Port of Google Closure's Long",
   "version": "0.8.0",
   "main": "lib/pg-long.js",
   "main-es6": "src/pg-long.es6",

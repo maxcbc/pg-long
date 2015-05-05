@@ -397,5 +397,5 @@ let TEST_DIV_BITS = [
       0x00000000, 0x00007fff, 0x00000000, 0x00000800, 0x00000000, 0x000007ff,
       0x00000000, 0x00000001, 0x00000000, 0x00000001
     ];
-                  
+
 export default TEST_DIV_BITS;

@@ -35,5 +35,5 @@ let TEST_STRINGS = [
       '6211839219354490357',
       '9223372036854775807'
     ];
-                  
+
 export default TEST_STRINGS;

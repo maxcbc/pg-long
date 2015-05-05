@@ -409,5 +409,5 @@ let TEST_SUB_BITS = [
       0x7ff00000, 0x00000000, 0x7fefffff, 0xffffffff, 0x29cb1d24, 0x48892a0a,
       0x00000000, 0x00000000
     ];
-                  
+
 export default TEST_SUB_BITS;

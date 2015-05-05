@@ -199,5 +199,5 @@ let TEST_ADD_BITS = [
       0x8000ffff, 0xffffffff, 0x800fffff, 0xfffffffe, 0x800fffff, 0xffffffff,
       0xd634e2db, 0xb776d5f4
     ];
-                  
+
 export default TEST_ADD_BITS;
