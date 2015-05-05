@@ -1,10 +1,10 @@
 import Long from '../../src/pg-long';
-import TEST_BITS from './test-bits';
-import TEST_ADD_BITS from './test-add-bits';
-import TEST_SUB_BITS from './test-sub-bits';
-import TEST_MUL_BITS from './test-mul-bits';
-import TEST_DIV_BITS from './test-div-bits';
-import TEST_STRINGS from './test-strings';
+import TEST_BITS from '../helper/test-bits';
+import TEST_ADD_BITS from '../helper/test-add-bits';
+import TEST_SUB_BITS from '../helper/test-sub-bits';
+import TEST_MUL_BITS from '../helper/test-mul-bits';
+import TEST_DIV_BITS from '../helper/test-div-bits';
+import TEST_STRINGS from '../helper/test-strings';
 
 // Interprets the given numbers as the bits of a 32-bit int.  In particular,
 // this takes care of the 32-bit being interpretted as the sign.
