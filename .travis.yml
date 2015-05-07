@@ -9,4 +9,4 @@ before_install:
   - sh -e /etc/init.d/xvfb start
 
 after_script:
-  - CODECLIMATE_REPO_TOKEN=ab8d2d8bae327c09279b05370066c7f27ff8babfddb1c386ba99b022c44d2986 codeclimate < lcov.info
+  - CODECLIMATE_REPO_TOKEN=ab8d2d8bae327c09279b05370066c7f27ff8babfddb1c386ba99b022c44d2986 codeclimate < report/jasmine-coverage/lcov.info
