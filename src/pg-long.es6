@@ -47,6 +47,9 @@
  * @final
  */
 
+import _ from 'lodash';
+import {byteArrayToHex, hexToByteArray} from 'pg-crypt';
+
 /**
  * A cache of the Long representations of small integer values.
  * @type {!Object}
@@ -54,12 +57,24 @@
  */
 let IntCache = {};
 
+/**
+ * All possible chars for representing a number as a String
+ */
+const integerDigits = [
+    '0', '1', '2', '3', '4', '5',
+    '6', '7', '8', '9', 'a', 'b',
+    'c', 'd', 'e', 'f', 'g', 'h',
+    'i', 'j', 'k', 'l', 'm', 'n',
+    'o', 'p', 'q', 'r', 's', 't',
+    'u', 'v', 'w', 'x', 'y', 'z'
+];
+
 class Long {
   constructor (low, high) {
     this.low_ = low | 0;  // force into 32 signed bits.
     this.high_ = high | 0;  // force into 32 signed bits.
   }
-
+  
   /**
    * Returns a Long representing the given (32-bit) integer value.
    * @param {number} value The 32-bit integer in question.
@@ -318,6 +333,188 @@ class Long {
       result = '' + digits + result;
     }
   }
+
+  numberOfLeadingZeros () {
+    return Long.numberOfLeadingZeros(this);
+  }
+
+  toHexString () {
+    return Long.toHexString(this);
+  }
+
+  toOctalString () {
+    return Long.toOctalString(this);
+  }
+
+  toBinaryString () {
+    return Long.toBinaryString(this);
+  }
+
+  toBytes (pad) {
+    return Long.toBytes(this, pad);
+  }
+
+  static toHexString (i) {
+    return Long.toUnsignedString0(i, 4);
+  }
+
+  static toOctalString (i) {
+    return Long.toUnsignedString0(i, 3);
+  }
+
+  static toBinaryString (i) {
+    return Long.toUnsignedString0(i, 1);
+  }
+
+  static toBytes (i, pad) {
+    let hex = Long.toHexString(i),
+        bytes = [],
+        c, j;
+
+    if (hex.length % 2) {
+      hex = '0' + hex;
+    }
+    bytes = hexToByteArray(hex);
+
+    if (pad) {
+      for (j = bytes.length; j < pad; ++j) {
+        bytes.unshift(0);
+      }
+    }
+
+    return bytes;
+  }
+
+  static fromBytes (bytes) {
+    return Long.fromString(byteArrayToHex(bytes), 16);
+  }
+
+  /**
+   * Decodes a {@code String} into a {@code Long}.
+   * Accepts decimal, hexadecimal, and octal numbers.
+   */
+  static decode (nm) {
+    let radix = 10,
+        index = 0,
+        negative = false,
+        result, firstChar, constant;
+
+    if (nm.length === 0) {
+      throw new Error('Zero length string');
+    }
+    firstChar = nm.charAt(0);
+    // Handle sign, if present
+    if (firstChar === '-') {
+      negative = true;
+      index++;
+    } else if (firstChar === '+') {
+      index++;
+    }
+
+    // Handle radix specifier, if present
+    if (_.startsWith(nm, '0x', index) || _.startsWith(nm, '0X', index)) {
+      index += 2;
+      radix = 16;
+    } else if (_.startsWith(nm, '#', index)) {
+      index ++;
+      radix = 16;
+    } else if (_.startsWith(nm, '0', index) && nm.length > 1 + index) {
+      index ++;
+      radix = 8;
+    }
+
+    if (_.startsWith(nm, '-', index) || _.startsWith(nm, '+', index)) {
+      throw new Error('Sign character in wrong position');
+    }
+
+    try {
+      result = Long.fromString(nm.substring(index), radix);
+      if (negative) {
+        result = result.negate();
+      }
+    } catch (e) {
+      // If number is Long.MIN_VALUE, we'll end up here. The next line
+      // handles this case, and causes any genuine format error to be
+      // rethrown.
+      constant = negative ? ('-' + nm.substring(index)) : nm.substring(index);
+      result = Long.fromString(constant, radix);
+    }
+    return result;
+  }
+
+  /**
+   * Format a long (treated as unsigned) into a String.
+   * @param val the value to format
+   * @param shift the log2 of the base to format in (4 for hex, 3 for octal, 1 for binary)
+   */
+  static toUnsignedString0 (val, shift) {
+    // assert shift > 0 && shift <=5 : "Illegal shift value";
+    let mag = Long.fromNumber(64).subtract(val.numberOfLeadingZeros()).toNumber(),
+        chars = Math.round(Math.max(((mag + (shift - 1)) / shift), 1)),
+        buf = new Array(chars);
+
+    Long.formatUnsignedLong(val, shift, buf, 0, chars);
+    return buf.join('');
+  }
+
+  /**
+   * Format a long (treated as unsigned) into a character buffer.
+   * @param val the unsigned long to format
+   * @param shift the log2 of the base to format in (4 for hex, 3 for octal, 1 for binary)
+   * @param buf the character buffer to write to
+   * @param offset the offset in the destination buffer to start at
+   * @param len the number of characters to write
+   * @return the lowest character location used
+   */
+  static formatUnsignedLong (value, shift, buf, offset, len) {
+    let charPos = len,
+        radix = 1 << shift,
+        mask = radix - 1,
+        val = value;
+    do {
+      buf[offset + --charPos] = integerDigits[val.toNumber() & mask];
+      val = val.shiftRightUnsigned(shift);
+    } while (!val.equals(Long.ZERO) && charPos > 0);
+
+    return charPos;
+  }
+
+  /**
+   * Returns the number of zero bits preceding the highest-order
+   * ("leftmost") one-bit in the two's complement binary representation
+   * of the specified {@code long} value.  Returns 64 if the
+   * specified value has no one-bits in its two's complement representation,
+   * in other words if it is equal to zero.
+   */
+  static numberOfLeadingZeros (i) {
+    if (i.equals(Long.ZERO)) {
+      return 64;
+    }
+    let n = 1,
+        x = i.shiftRightUnsigned(32);
+    if (x.equals(Long.ZERO)) {
+      n += 32;
+      x = i;
+    }
+    if (x.shiftRightUnsigned(16).equals(Long.ZERO)) {
+      n += 16;
+      x = x.shiftLeft(16);
+    }
+    if (x.shiftRightUnsigned(24).equals(Long.ZERO)) {
+      n += 8;
+      x = x.shiftLeft(8);
+    }
+    if (x.shiftRightUnsigned(28).equals(Long.ZERO)) {
+      n += 4;
+      x = x.shiftLeft(4);
+    }
+    if (x.shiftRightUnsigned(30).equals(Long.ZERO)) {
+      n += 2;
+      x = x.shiftLeft(2);
+    }
+    return Long.fromNumber(n).subtract(x.shiftRightUnsigned(31));
+  }
+
 
   /** @return {number} The high 32-bits as a signed value. */
   getHighBits () {

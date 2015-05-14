@@ -13,10 +13,12 @@
     "name": "David Haines",
     "email": "david@polyglotted.io"
   },
-  "contributors": [{
-    "name": "Ahmed Nuaman",
-    "email": "ahmed@polyglotted.io"
-  }],
+  "contributors": [
+    {
+      "name": "Ahmed Nuaman",
+      "email": "ahmed@polyglotted.io"
+    }
+  ],
   "repository": {
     "type": "git",
     "url": "git@github.com:polyglotted/pg-long.git"
@@ -24,6 +26,10 @@
   "license": "MIT",
   "devDependencies": {
     "gulp": "^3.8.11",
-    "gulp-fibre-tasks": "^1.0.4"
+    "gulp-fibre-tasks": "^1.0.6"
+  },
+  "dependencies": {
+    "lodash": "^3.8.0",
+    "pg-crypt": "^0.9.1"
   }
 }

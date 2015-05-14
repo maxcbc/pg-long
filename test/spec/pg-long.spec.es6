@@ -1,4 +1,5 @@
 import Long from '../../src/pg-long';
+import {byteArrayToHex, hexToByteArray} from 'pg-crypt';
 import TEST_BITS from '../helper/test-bits';
 import TEST_ADD_BITS from '../helper/test-add-bits';
 import TEST_SUB_BITS from '../helper/test-sub-bits';
@@ -132,12 +133,36 @@ function createTestToFromString (i) {
 }
 
 describe('Long', () => {
-  let methods = ['fromInt', 'fromNumber'];
+  let methods = ['fromInt', 'fromNumber', 'toHexString', 'toOctalString', 'toBinaryString'];
 
   methods.forEach((method) => {
     it('should define method ' + method, () => {
       expect(Long[method]).toBeDefined();
     });
+  });
+
+  it('should provide same value for static and corresponding class method toHexString', () => {
+    expect(Long.ONE.toHexString()).toEqual(Long.toHexString(Long.ONE));
+  });
+
+  it('should provide same value for static and corresponding class method toOctalString', () => {
+    expect(Long.ONE.toOctalString()).toEqual(Long.toOctalString(Long.ONE));
+  });
+
+  it('should provide same value for static and corresponding class method toBinaryString', () => {
+    expect(Long.ONE.toBinaryString()).toEqual(Long.toBinaryString(Long.ONE));
+  });
+
+  it('should to/from bytes', () => {
+    let long = Long.fromNumber(1024),
+        expected = long.toBytes();
+    expect(Long.fromBytes(expected).toBytes()).toEqual(expected);
+  });
+
+  it('should decode', () => {
+    let hex = '0x4368f6c3',
+        decoded = Long.decode(hex);
+    expect('0x' + decoded.toHexString()).toEqual(hex);
   });
 
   it('should to/from bits', () => {
