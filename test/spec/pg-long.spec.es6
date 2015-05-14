@@ -1,5 +1,4 @@
 import Long from '../../src/pg-long';
-import {byteArrayToHex, hexToByteArray} from 'pg-crypt';
 import TEST_BITS from '../helper/test-bits';
 import TEST_ADD_BITS from '../helper/test-add-bits';
 import TEST_SUB_BITS from '../helper/test-sub-bits';
@@ -153,10 +152,31 @@ describe('Long', () => {
     expect(Long.ONE.toBinaryString()).toEqual(Long.toBinaryString(Long.ONE));
   });
 
-  it('should to/from bytes', () => {
-    let long = Long.fromNumber(1024),
-        expected = long.toBytes();
-    expect(Long.fromBytes(expected).toBytes()).toEqual(expected);
+  it('should get to/from bytes via bits', () => {
+    let expected = Long.fromBits(-778288915, 1130952387),
+        actual = Long.fromBytes(expected.toBytes());
+    expect(actual.toBytes()).toEqual(expected.toBytes());
+    expect(actual.getHighBits()).toEqual(expected.getHighBits());
+    expect(actual.getLowBits()).toEqual(expected.getLowBits());
+    expect(actual.equals(expected)).toBeTruthy();
+  });
+
+  it('should to/from bytes unsigned', () => {
+    let expected = Long.fromNumber(1024),
+        actual = Long.fromBytes(expected.toBytes());
+    expect(actual.toBytes()).toEqual(expected.toBytes());
+    expect(actual.getHighBits()).toEqual(expected.getHighBits());
+    expect(actual.getLowBits()).toEqual(expected.getLowBits());
+    expect(actual.equals(expected)).toBeTruthy();
+  });
+
+  it('should to/from bytes signed', () => {
+    let expected = Long.fromNumber(-8078141297006908891),
+        actual = Long.fromBytes(expected.toBytes());
+    expect(actual.toBytes()).toEqual(expected.toBytes());
+    expect(actual.getHighBits()).toEqual(expected.getHighBits());
+    expect(actual.getLowBits()).toEqual(expected.getLowBits());
+    expect(actual.equals(expected)).toBeTruthy();
   });
 
   it('should decode', () => {

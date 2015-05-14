@@ -47,8 +47,8 @@
  * @final
  */
 
+import JDataView from 'jdataview';
 import _ from 'lodash';
-import {byteArrayToHex, hexToByteArray} from 'pg-crypt';
 
 /**
  * A cache of the Long representations of small integer values.
@@ -74,7 +74,7 @@ class Long {
     this.low_ = low | 0;  // force into 32 signed bits.
     this.high_ = high | 0;  // force into 32 signed bits.
   }
-  
+
   /**
    * Returns a Long representing the given (32-bit) integer value.
    * @param {number} value The 32-bit integer in question.
@@ -128,8 +128,7 @@ class Long {
   }
 
   /**
-   * Returns a Long representation of the given string, written using the given
-   * radix.
+   * Returns a Long representation of the given string, written using the given radix.
    * @param {string} str The textual representation of the Long.
    * @param {number=} optRadix The radix in which the text is written.
    * @return {!Long} The corresponding Long value.
@@ -367,14 +366,16 @@ class Long {
   }
 
   static toBytes (i, pad) {
-    let hex = Long.toHexString(i),
+    let dv = new JDataView(8),
         bytes = [],
-        c, j;
+        j;
 
-    if (hex.length % 2) {
-      hex = '0' + hex;
+    dv.setInt32(0, i.getHighBits());
+    dv.setInt32(4, i.getLowBits());
+
+    for (j = 0; j < 8; j++) {
+      bytes.push(dv.getUint8(j));
     }
-    bytes = hexToByteArray(hex);
 
     if (pad) {
       for (j = bytes.length; j < pad; ++j) {
@@ -386,7 +387,11 @@ class Long {
   }
 
   static fromBytes (bytes) {
-    return Long.fromString(byteArrayToHex(bytes), 16);
+    let dv = new JDataView(bytes),
+        hi, lo;
+    hi = dv.getInt32(0);
+    lo = dv.getInt32(4);
+    return Long.fromBits(lo, hi);
   }
 
   /**
@@ -416,10 +421,10 @@ class Long {
       index += 2;
       radix = 16;
     } else if (_.startsWith(nm, '#', index)) {
-      index ++;
+      index++;
       radix = 16;
     } else if (_.startsWith(nm, '0', index) && nm.length > 1 + index) {
-      index ++;
+      index++;
       radix = 8;
     }
 
