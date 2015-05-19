@@ -140,22 +140,24 @@ describe('Long', () => {
     });
   });
 
-  it('should provide same value for static and corresponding class method toHexString', () => {
-    expect(Long.ONE.toHexString()).toEqual(Long.toHexString(Long.ONE));
+  it('should toHexString', () => {
+    expect(Long.toHexString(Long.MAX_VALUE)).toEqual('7ffffffffffff000');
+    expect(Long.toHexString(Long.MAX_UNSIGNED_VALUE)).toEqual('fffffffffffff000');
   });
 
-  it('should provide same value for static and corresponding class method toOctalString', () => {
-    expect(Long.ONE.toOctalString()).toEqual(Long.toOctalString(Long.ONE));
+  it('should toOctalString', () => {
+    expect(Long.toOctalString(Long.MAX_VALUE)).toEqual('777777777777777770000');
   });
 
-  it('should provide same value for static and corresponding class method toBinaryString', () => {
-    expect(Long.ONE.toBinaryString()).toEqual(Long.toBinaryString(Long.ONE));
+  it('should toBinaryString', () => {
+    expect(Long.toBinaryString(Long.MAX_VALUE)).
+      toEqual('111111111111111111111111111111111111111111111111111110000000000');
   });
 
   it('should get to/from bytes via bits', () => {
     let expected = Long.fromBits(-778288915, 1130952387),
-        actual = Long.fromBytes(expected.toBytes());
-    expect(actual.toBytes()).toEqual(expected.toBytes());
+        actual = Long.fromBytes(Long.toBytes(expected));
+    expect(Long.toBytes(actual)).toEqual(Long.toBytes(expected));
     expect(actual.getHighBits()).toEqual(expected.getHighBits());
     expect(actual.getLowBits()).toEqual(expected.getLowBits());
     expect(actual.equals(expected)).toBeTruthy();
@@ -163,8 +165,8 @@ describe('Long', () => {
 
   it('should to/from bytes unsigned', () => {
     let expected = Long.fromNumber(1024),
-        actual = Long.fromBytes(expected.toBytes());
-    expect(actual.toBytes()).toEqual(expected.toBytes());
+        actual = Long.fromBytes(Long.toBytes(expected));
+    expect(Long.toBytes(actual)).toEqual(Long.toBytes(expected));
     expect(actual.getHighBits()).toEqual(expected.getHighBits());
     expect(actual.getLowBits()).toEqual(expected.getLowBits());
     expect(actual.equals(expected)).toBeTruthy();
@@ -172,17 +174,11 @@ describe('Long', () => {
 
   it('should to/from bytes signed', () => {
     let expected = Long.fromNumber(-8078141297006908891),
-        actual = Long.fromBytes(expected.toBytes());
-    expect(actual.toBytes()).toEqual(expected.toBytes());
+        actual = Long.fromBytes(Long.toBytes(expected));
+    expect(Long.toBytes(actual)).toEqual(Long.toBytes(expected));
     expect(actual.getHighBits()).toEqual(expected.getHighBits());
     expect(actual.getLowBits()).toEqual(expected.getLowBits());
     expect(actual.equals(expected)).toBeTruthy();
-  });
-
-  it('should decode', () => {
-    let hex = '0x4368f6c3',
-        decoded = Long.decode(hex);
-    expect('0x' + decoded.toHexString()).toEqual(hex);
   });
 
   it('should to/from bits', () => {

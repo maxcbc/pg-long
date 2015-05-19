@@ -1,6 +1,6 @@
 {
   "name": "pg-long",
-  "description": "Port of Google Closure's Long",
+  "description": "Extension of dcodeIO Long",
   "version": "0.9.1",
   "main": "lib/pg-long.js",
   "main-es6": "src/pg-long.es6",
@@ -30,6 +30,7 @@
   },
   "dependencies": {
     "jdataview": "^2.5.0",
-    "lodash": "^3.8.0"
+    "lodash": "^3.8.0",
+    "long": "^2.2.3"
   }
 }
