@@ -1,7 +1,7 @@
 {
   "name": "pg-long",
   "description": "Extension of dcodeIO Long",
-  "version": "0.9.3",
+  "version": "0.10.0",
   "main": "lib/pg-long.js",
   "main-es6": "src/pg-long.es6",
   "scripts": {
